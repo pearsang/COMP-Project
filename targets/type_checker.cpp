@@ -262,6 +262,13 @@ void til::type_checker::do_address_node(til::address_node *const node, int lvl) 
 
 //---------------------------------------------------------------------------
 
+void til::type_checker::do_identity_node(til::identity_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::type_checker::do_if_node(til::if_node *const node, int lvl) {
   node->condition()->accept(this, lvl + 4);
 }

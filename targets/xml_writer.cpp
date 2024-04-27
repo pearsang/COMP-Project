@@ -255,6 +255,13 @@ void til::xml_writer::do_address_node(til::address_node * const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
+void til::xml_writer::do_identity_node(til::identity_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::xml_writer::do_if_node(til::if_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
