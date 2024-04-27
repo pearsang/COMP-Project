@@ -295,6 +295,13 @@ void til::postfix_writer::do_function_call_node(til::function_call_node * const 
 
 //---------------------------------------------------------------------------
 
+void til::postfix_writer::do_nullptr_node(til::nullptr_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::postfix_writer::do_if_node(til::if_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   int lbl1;
