@@ -1,0 +1,9 @@
+# doxygen documentation
+docs
+
+# NixOS's flakes files
+.nix-init
+.pre-commit-config.yaml
+
+# vscode files
+.vscode
