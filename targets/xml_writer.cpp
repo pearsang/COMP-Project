@@ -206,6 +206,27 @@ void til::xml_writer::do_block_node(til::block_node * const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
+void til::xml_writer::do_sizeof_node(til::sizeof_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::xml_writer::do_function_call_node(til::function_call_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::xml_writer::do_nullptr_node(til::nullptr_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::xml_writer::do_if_node(til::if_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
