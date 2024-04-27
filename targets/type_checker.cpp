@@ -214,8 +214,15 @@ void til::type_checker::do_block_node(til::block_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void til::type_checker::do_sizeof_node(til::sizeof_node *const node, int lvl) {
-   // TODO: not needed for now
+  // TODO: not needed for now
   throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::type_checker::do_function_call_node(til::function_call_node *const node, int lvl) {
+  // TODO: implement this
+  throw "not implemented";
 }
 
 //---------------------------------------------------------------------------
