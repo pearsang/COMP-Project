@@ -227,6 +227,14 @@ void til::type_checker::do_nullptr_node(til::nullptr_node *const node, int lvl) 
 
 //---------------------------------------------------------------------------
 
+void til::type_checker::do_indexptr_node(til::indexptr_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+
+//---------------------------------------------------------------------------
+
 void til::type_checker::do_function_call_node(til::function_call_node *const node, int lvl) {
   // TODO: implement this
   throw "not implemented";
