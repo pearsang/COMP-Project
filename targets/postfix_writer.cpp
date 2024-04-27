@@ -251,7 +251,30 @@ void til::postfix_writer::do_while_node(til::while_node * const node, int lvl) {
   _pf.LABEL(mklbl(lbl2));
 }
 
+//---------------------------------------------------------------------------
+
 void til::postfix_writer::do_stop_node(til::stop_node * const node, int lvl) {
+  //TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::postfix_writer::do_next_node(til::next_node * const node, int lvl) {
+  //TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::postfix_writer::do_return_node(til::return_node * const node, int lvl) {
+  //TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::postfix_writer::do_block_node(til::block_node * const node, int lvl) {
   //TODO: not needed for now
   throw "not done yet";
 }

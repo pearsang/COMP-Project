@@ -192,6 +192,27 @@ void til::type_checker::do_stop_node(til::stop_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
+void til::type_checker::do_next_node(til::next_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::type_checker::do_return_node(til::return_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
+void til::type_checker::do_block_node(til::block_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::type_checker::do_if_node(til::if_node *const node, int lvl) {
   node->condition()->accept(this, lvl + 4);
 }
