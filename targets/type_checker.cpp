@@ -185,6 +185,11 @@ void til::type_checker::do_while_node(til::while_node *const node, int lvl) {
   node->condition()->accept(this, lvl + 4);
 }
 
+void til::type_checker::do_stop_node(til::stop_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
 //---------------------------------------------------------------------------
 
 void til::type_checker::do_if_node(til::if_node *const node, int lvl) {
