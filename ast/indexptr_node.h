@@ -1,5 +1,5 @@
-#ifndef __TIL_AST_POINTER_INDEX_NODE_H__
-#define __TIL_AST_POINTER_INDEX_NODE_H__
+#ifndef __TIL_AST_INDEXPTR_NODE_H__
+#define __TIL_AST_INDEXPTR_NODE_H__
 
 #include <cdk/ast/expression_node.h>
 #include <cdk/ast/lvalue_node.h>
@@ -14,7 +14,7 @@ namespace til {
     cdk::expression_node *_index;
 
   public:
-    inline pointer_index_node(int lineno, cdk::expression_node *base, cdk::expression_node *index) :
+    inline indexptr_node(int lineno, cdk::expression_node *base, cdk::expression_node *index) :
         cdk::lvalue_node(lineno), _base(base), _index(index) {
     }
 

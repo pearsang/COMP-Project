@@ -316,6 +316,13 @@ void til::postfix_writer::do_declaration_node(til::declaration_node * const node
 
 //---------------------------------------------------------------------------
 
+void til::postfix_writer::do_function_def_node(til::function_def_node * const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::postfix_writer::do_if_node(til::if_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   int lbl1;

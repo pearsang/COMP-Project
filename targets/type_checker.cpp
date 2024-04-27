@@ -248,6 +248,13 @@ void til::type_checker::do_declaration_node(til::declaration_node *const node, i
 
 //---------------------------------------------------------------------------
 
+void til::type_checker::do_function_def_node(til::function_def_node *const node, int lvl) {
+  // TODO: not needed for now
+  throw "not done yet";
+}
+
+//---------------------------------------------------------------------------
+
 void til::type_checker::do_if_node(til::if_node *const node, int lvl) {
   node->condition()->accept(this, lvl + 4);
 }
