@@ -330,13 +330,6 @@ void til::postfix_writer::do_address_node(til::address_node * const node, int lv
 
 //---------------------------------------------------------------------------
 
-void til::postfix_writer::do_identity_node(til::identity_node * const node, int lvl) {
-  // TODO: not needed for now
-  throw "not done yet";
-}
-
-//---------------------------------------------------------------------------
-
 void til::postfix_writer::do_stack_alloc_node(til::stack_alloc_node * const node, int lvl) {
   // TODO: not needed for now
   throw "not done yet";
