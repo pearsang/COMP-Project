@@ -139,8 +139,8 @@ void til::xml_writer::do_evaluation_node(til::evaluation_node * const node, int 
 
 void til::xml_writer::do_print_node(til::print_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  openTag(node, lvl);
-  node->argument()->accept(this, lvl + 2);
+  openTagWithAttributes(node, lvl, std::make_pair("append_newline", bool_to_str(node->append_newline())));
+  node->arguments()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -177,8 +177,8 @@ void til::xml_writer::do_stop_node(til::stop_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void til::xml_writer::do_next_node(til::next_node * const node, int lvl) {
-  // TODO: not needed for now
-  throw "not done yet";
+  ASSERT_SAFE_EXPRESSIONS;
+  emptyTagWithAttributes(node, lvl, std::make_pair("level", node->level()));
 }
 
 //---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
-#ifndef __SIMPLESCANNER_H__
-#define __SIMPLESCANNER_H__
+#ifndef __TILSCANNER_H__9
+#define __TILSCANNER_H__
 
 #undef yyFlexLexer
 #define yyFlexLexer til_scanner_FlexLexer

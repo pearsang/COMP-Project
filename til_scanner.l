@@ -10,40 +10,123 @@
 
 // don't change this
 #define yyerror LexerError
+
+#define CHECKED_STOI(base) { \
+  try { \
+    yylval.i = std::stoi(yytext, nullptr, base); \
+    return tINTEGER; \
+  } catch (const std::out_of_range&) { \
+    yyerror("integer overflow"); \
+  } \
+}
+
+#define CHECKED_STOD { \
+  try { \
+    yylval.d = std::stod(yytext); \
+    return tDOUBLE; \
+  } catch (const std::out_of_range&) { \
+    yyerror("double overflow"); \
+  } \
+}
+
+
 %}
-%x X_STRING
+
+EXP [Ee][+-]?[0-9]+
+
+
+%x X_STRING X_COMMENT X_STRING_END
 %%
   yydebug=1; set_debug(1);
 
-"--".*                 ; /* ignore comments */
+
+"/;".*                 ; /* ignore comments */
+
+"/*"                   yy_push_state(X_COMMENT);
+<X_COMMENT>"*/"        yy_pop_state();
+<X_COMMENT>"/*"        yy_push_state(X_COMMENT);
+<X_COMMENT>.|\n        ; /* ignore */
+
 
 ">="                   return tGE; 
 "<="                   return tLE; 
 "=="                   return tEQ; 
 "!="                   return tNE; 
+"&&"                   return tAND;
+"||"                   return tOR;
 
-"while"                return tWHILE; 
+"int"                  return tTYPE_INT;
+"double"               return tTYPE_DOUBLE;
+"string"               return tTYPE_STRING;
+"void"                 return tTYPE_VOID;
+
+"external"              return tEXTERNAL;
+"forward"               return tFORWARD;
+"public"                return tPUBLIC;
+"var"                   return tVAR;
+
+"block"                return tBLOCK;
 "if"                   return tIF; 
-"else"                 return tELSE; 
-"print"                return tPRINT; 
-"read"                 return tREAD; 
-"begin"                return tBEGIN; 
-"end"                  return tEND; 
+"loop"                 return tLOOP;
+"stop"                 return tSTOP;
+"next"                 return tNEXT;
+"return"               return tRETURN;
+"print"                return tPRINT;
+"println"              return tPRINTLN;
+
+"input"                return tINPUT;
+"null"                 return tNULL;
+"set"                  return tSET; /* TODO: return *yytext???*/
+"index"                return tINDEX;
+"objects"              return tOBJECTS;
+"sizeof"               return tSIZEOF;
+"function"             return tFUNCTION;
+
+"program"              return tPROGRAM;
+
 
 [A-Za-z][A-Za-z0-9_]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
 
-\'                     yy_push_state(X_STRING); yylval.s = new std::string("");
-<X_STRING>\'           yy_pop_state(); return tSTRING;
-<X_STRING>\\\'         *yylval.s += yytext + 1;
-<X_STRING>.            *yylval.s += yytext;
+\"                     yy_push_state(X_STRING); yylval.s = new std::string("");
+<X_STRING>\"           yy_pop_state(); return tSTRING;
+<X_STRING>\\\"         *yylval.s += yytext + 1;
+<X_STRING>\\\\         *yylval.s += yytext + 1;
+<X_STRING>\\t          *yylval.s += '\t';
+<X_STRING>\\n          *yylval.s += '\n';
+<X_STRING>\\r          *yylval.s += '\r';
+<X_STRING>\\0          yy_push_state(X_STRING_END);
+<X_STRING>\\[0-7]{1,3} {
+                          int i = std::stoi(yytext + 1, nullptr, 8);
+                          if (i > 255) yyerror("octal escape sequence out of range");
+                          *yylval.s += (char) i;
+                       }
+<X_STRING>\\.          *yylval.s += yytext + 1;
 <X_STRING>\n           yyerror("newline in string");
+<X_STRING>\0           yyerror("null byte in string");
+<X_STRING>.            *yylval.s += yytext;
 
-[0-9]+                 yylval.i = strtol(yytext, nullptr, 10); return tINTEGER;
+<X_STRING_END>\"       yy_pop_state(); yy_pop_state(); return tSTRING;
+<X_STRING_END>\\\"     ;
+<X_STRING_END>\\\\     ;
+<X_STRING_END>\n       yyerror("newline in string");
+<X_STRING_END>\0       yyerror("null byte in string");
+<X_STRING_END>.        ;
 
-[-()<>=+*/%;{}.]       return *yytext;
+0|[1-9][0-9]*          CHECKED_STOI(10);
+0[0-7]+                CHECKED_STOI(8);
+0[0-9]+                yyerror("invalid base 8 integer literal");
 
-[ \t\n]+               ; /* ignore whitespace */
+
+[0-9]*\.[0-9]+{EXP}?   CHECKED_STOD;
+[0-9]+\.[0-9]*{EXP}?   CHECKED_STOD;
+[0-9]+{EXP}            CHECKED_STOD;
+
+
+[-()<>+*/%;{},\[\]!@?~]  return *yytext;
+
+[ \t\n\r]+               ; /* ignore whitespace */
 
 .                      yyerror("Unknown character");
 
 %%
+

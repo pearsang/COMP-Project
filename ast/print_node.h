@@ -21,6 +21,8 @@ namespace til {
 
     void accept(basic_ast_visitor *sp, int level) { sp->do_print_node(this, level); }
 
+    bool append_newline() { return _newline; }
+
   };
 
 } // til
