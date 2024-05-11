@@ -1,4 +1,4 @@
-#ifndef __TILSCANNER_H__9
+#ifndef __TILSCANNER_H__
 #define __TILSCANNER_H__
 
 #undef yyFlexLexer
