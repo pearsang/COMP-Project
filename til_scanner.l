@@ -40,7 +40,7 @@ EXP [Ee][+-]?[0-9]+
   yydebug=1; set_debug(1);
 
 
-"/;".*                 ; /* ignore comments */
+";".*                 ; /* ignore comments */
 
 "/*"                   yy_push_state(X_COMMENT);
 <X_COMMENT>"*/"        yy_pop_state();

@@ -7,3 +7,6 @@ docs
 
 # vscode files
 .vscode
+
+
+auto-tests/*
