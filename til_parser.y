@@ -79,12 +79,12 @@ fdecls : fdecls fdecl    { $$ = new cdk::sequence_node(LINE, $2, $1); }
        |        fdecl    { $$ = new cdk::sequence_node(LINE, $1); }
        ;
 
-fdecl : "(" tEXTERNAL type tIDENTIFIER ')'    { $$ = new til::declaration_node(LINE, tEXTERNAL, $3, *$4, nullptr); delete $4; }
-      | "(" tFORWARD type  tIDENTIFIER          ')'    { $$ = new til::declaration_node(LINE, tFORWARD, $3, *$4, nullptr); delete $4; }
-      | "(" tPUBLIC  type  tIDENTIFIER          ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, $3, *$4, nullptr); delete $4; }
-      | "(" tPUBLIC  type  tIDENTIFIER expr ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, $3, *$4, $5); delete $4; }
-      | "(" tPUBLIC  tVAR tIDENTIFIER  expr ')'   { $$ = new til::declaration_node(LINE, tPUBLIC, nullptr, *$4, $5); delete $4; }
-      | "(" tPUBLIC        tIDENTIFIER expr ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, nullptr, *$3, $4); delete $3; }
+fdecl : '(' tEXTERNAL type tIDENTIFIER ')'    { $$ = new til::declaration_node(LINE, tEXTERNAL, $3, *$4, nullptr); delete $4; }
+      | '(' tFORWARD type  tIDENTIFIER          ')'    { $$ = new til::declaration_node(LINE, tFORWARD, $3, *$4, nullptr); delete $4; }
+      | '(' tPUBLIC  type  tIDENTIFIER          ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, $3, *$4, nullptr); delete $4; }
+      | '(' tPUBLIC  type  tIDENTIFIER expr ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, $3, *$4, $5); delete $4; }
+      | '(' tPUBLIC  tVAR tIDENTIFIER  expr ')'   { $$ = new til::declaration_node(LINE, tPUBLIC, nullptr, *$4, $5); delete $4; }
+      | '(' tPUBLIC        tIDENTIFIER expr ')'    { $$ = new til::declaration_node(LINE, tPUBLIC, nullptr, *$3, $4); delete $3; }
       |          decl  /* private  */              { $$ = $1; }
       ;
 
@@ -116,7 +116,7 @@ ref_type : referable_type '!'     { $$ = cdk::reference_type::create(4, $1); }
 
 void_ref_type : void_ref_type '!'    { $$ = $1; }
               | tTYPE_VOID '!'       { $$ = cdk::reference_type::create(4, cdk::primitive_type::create(0, cdk::TYPE_VOID)); }
-              ;
+              ; 
 
 program : '(' tPROGRAM decls_instrs ')'   { $$ = new til::program_node(LINE, $3); }
         ;
@@ -184,7 +184,7 @@ expr : tINTEGER               { $$ = new cdk::integer_node(LINE, $1); }
      | '(' tOR expr  expr ')'           { $$ = new cdk::or_node(LINE, $3, $4); }
      | '(' tOBJECTS expr ')'            { $$ = new til::stack_alloc_node(LINE, $3); }
      | '(' expr ')'             { $$ = $2; }
-     | '(' tSIZEOF '(' expr ')' ')'    { $$ = new til::sizeof_node(LINE, $4); }
+     | '(' tSIZEOF expr ')'    { $$ = new til::sizeof_node(LINE, $3); }
      | lval                  { $$ = new cdk::rvalue_node(LINE, $1); }
      | '(' tSET lval expr ')'          { $$ = new cdk::assignment_node(LINE, $3, $4); }
      | '(' '?' lval ')'             { $$ = new til::address_node(LINE, $3); }
