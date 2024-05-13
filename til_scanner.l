@@ -74,7 +74,7 @@ EXP [Ee][+-]?[0-9]+
 "print"                return tPRINT;
 "println"              return tPRINTLN;
 
-"input"                return tINPUT;
+"read"                return tREAD;
 "null"                 return tNULL;
 "set"                  return tSET; /* TODO: return *yytext???*/
 "index"                return tINDEX;
