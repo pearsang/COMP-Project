@@ -118,7 +118,7 @@ void_ref_type : void_ref_type '!'    { $$ = $1; }
               | tTYPE_VOID '!'       { $$ = cdk::reference_type::create(4, cdk::primitive_type::create(0, cdk::TYPE_VOID)); }
               ;
 
-program : tPROGRAM decls_instrs   { $$ = new til::function_def_node(LINE, $2); }
+program : '(' tPROGRAM decls_instrs ')'   { $$ = new til::program_node(LINE, $3); }
         ;
 
 decls_instrs : decls instrs    { $$ = new til::block_node(LINE, $1, $2); }

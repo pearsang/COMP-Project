@@ -201,6 +201,10 @@ void til::type_checker::do_assignment_node(cdk::assignment_node *const node, int
 }
 
 //---------------------------------------------------------------------------
+void til::type_checker::do_program_node(til::program_node *const node, int lvl) {
+  // EMPTY
+}
+
 
 void til::type_checker::do_evaluation_node(til::evaluation_node *const node, int lvl)
 {
