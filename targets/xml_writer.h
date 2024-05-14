@@ -81,7 +81,7 @@ namespace til {
     }
     inline std::string type_to_str(std::shared_ptr<cdk::basic_type> type) {
       if (type == nullptr) {
-        return "[unknown]"; // why the brackets?
+        return "[unknown]"; 
       }
 
       auto ftype = std::dynamic_pointer_cast<cdk::functional_type>(type);
@@ -102,13 +102,17 @@ namespace til {
       return cdk::to_string(type);
     }
     inline const char *qualifier_to_str(int qualifier) {
-      switch (qualifier) {
-        case tEXTERNAL: return "external";
-        case tFORWARD: return "forward";
-        case tPUBLIC: return "public";
-        case tPRIVATE: return "private";
-        default: return "[unknown qualifier]";
-      };
+      if (qualifier == tEXTERNAL) {
+        return "external";
+      } else if (qualifier == tFORWARD) {
+        return "forward";
+      } else if (qualifier == tPUBLIC) {
+        return "public";
+      } else if (qualifier == tPRIVATE) {
+        return "private";
+      } else {
+        return "[unknown qualifier]";
+      }
     }
     template<typename T>
     void process_literal(cdk::literal_node<T> *const node, int lvl) {
