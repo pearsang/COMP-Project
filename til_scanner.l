@@ -95,17 +95,8 @@ EXP [Ee][+-]?[0-9]+
 <X_STRING>\\n          *yylval.s += '\n';
 <X_STRING>\\r          *yylval.s += '\r';
 <X_STRING>\\0          yy_push_state(X_STRING_END);
+<X_STRING>\\[0]{2,3}   yyerror("invalid octal escape sequence");
 <X_STRING>\\[0-7]{1,3} {
-                          // \00 and \000 are invalid
-                          // \0 is valid
-                          size_t len = strlen(yytext);
-                          bool possible_all_zero = len > 2 ? true : false;
-                          if (yytext[1] == '0' && possible_all_zero)
-                            for (size_t i = 2; i < len; i++)
-                              if (yytext[i] != '0')
-                                possible_all_zero = false;
-                              
-                          if (possible_all_zero) yyerror("invalid octal escape sequence");
                           int i = std::stoi(yytext + 1, nullptr, 8);
                           if (i > 255) yyerror("octal escape sequence out of range");
                           *yylval.s += (char) i;
