@@ -2,7 +2,6 @@
 #include "targets/xml_writer.h"
 #include "targets/type_checker.h"
 #include ".auto/all_nodes.h"  // automatically generated
-// #include <iostream>
 
 //---------------------------------------------------------------------------
 
@@ -175,9 +174,7 @@ void til::xml_writer::do_function_def_node(til::function_def_node * const node, 
   node->arguments()->accept(this, lvl + 4);
   closeTag("arguments", lvl + 2);
   openTag("block", lvl + 2);
-  std::cout << "function def node " << std::endl;
   node->block()->accept(this, lvl + 4);
-  std::cout << "AFTER BLCOK" << std::endl;
   closeTag("block", lvl + 2);
   _symtab.pop();
   closeTag(node, lvl);
