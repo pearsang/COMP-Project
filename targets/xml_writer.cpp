@@ -141,7 +141,7 @@ void til::xml_writer::do_indexptr_node(til::indexptr_node * const node, int lvl)
 void til::xml_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
   //ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
-  node->lvalue()->accept(this, lvl + 2); // 2 or 4?
+  node->lvalue()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -149,7 +149,7 @@ void til::xml_writer::do_assignment_node(cdk::assignment_node * const node, int 
   //ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
 
-  openTag("left", lvl + 2); // check this
+  openTag("left", lvl + 2);
   node->lvalue()->accept(this, lvl + 4);
   reset_new_symbol();
   closeTag("left", lvl + 2);
