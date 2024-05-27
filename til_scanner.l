@@ -85,7 +85,7 @@ EXP [Ee][+-]?[0-9]+
 "program"              return tPROGRAM;
 
 
-[A-Za-z][A-Za-z0-9_]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
+[A-Za-z][A-Za-z0-9]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
 
 \"                     yy_push_state(X_STRING); yylval.s = new std::string("");
 <X_STRING>\"           yy_pop_state(); return tSTRING;
@@ -114,8 +114,10 @@ EXP [Ee][+-]?[0-9]+
 <X_STRING_END>.        ;
 
 0|[1-9][0-9]*          CHECKED_STOI(10);
+0x0                    yyerror("invalid base 16 integer literal");
 0x[0-9a-fA-F]+         CHECKED_STOI(16);
 0[0-9]+                yyerror("invalid base 8 integer literal");
+
 
 
 [0-9]*\.[0-9]+{EXP}?   CHECKED_STOD;
