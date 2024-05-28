@@ -43,6 +43,8 @@
 %token tBLOCK tIF tLOOP tSTOP tNEXT tRETURN tPRINT tPRINTLN
 %token tREAD tNULL tSET tINDEX tOBJECTS tSIZEOF tFUNCTION
 %token tPROGRAM
+%token tAND tOR tGE tLE tEQ tNE
+
 
 //-- The rules below will be included in yyparse, the main parsing function.
 %type <sequence> fdecls decls instrs exprs
