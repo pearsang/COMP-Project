@@ -44,16 +44,6 @@
 %token tREAD tNULL tSET tINDEX tOBJECTS tSIZEOF tFUNCTION
 %token tPROGRAM
 
-%right tSET          
-%left tOR
-%left tAND
-%nonassoc '~'
-%left tEQ tNE
-%left tGE tLE '>' '<'
-%left '+' '-'
-%left '*' '/' '%'
-%nonassoc '('
-
 //-- The rules below will be included in yyparse, the main parsing function.
 %type <sequence> fdecls decls instrs exprs
 %type <node> fdecl program decl instr
