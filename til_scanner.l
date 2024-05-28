@@ -114,7 +114,7 @@ EXP [Ee][+-]?[0-9]+
 <X_STRING_END>.        ;
 
 0|[1-9][0-9]*          CHECKED_STOI(10);
-0x0                    yyerror("invalid base 16 integer literal");
+0x0+                   yyerror("invalid base 16 integer literal");
 0x[0-9a-fA-F]+         CHECKED_STOI(16);
 0[0-9]+                yyerror("invalid base 8 integer literal");
 
