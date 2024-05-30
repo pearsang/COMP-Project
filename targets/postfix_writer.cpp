@@ -16,11 +16,20 @@ void til::postfix_writer::do_data_node(cdk::data_node *const node, int lvl) {
   // EMPTY
 }
 
-void til::postfix_writer::do_unary_minus_node(cdk::unary_minus_node*, int) {
-  // EMPTY
+void til::postfix_writer::do_unary_minus_node(cdk::unary_minus_node * const node, int lvl) {
+  ASSERT_SAFE_EXPRESSIONS;
+  node->argument()->accept(this, lvl + 2); // determine the value
+
+  if (node->is_typed(cdk::TYPE_DOUBLE)) {
+    _pf.DNEG();
+  } else {
+    _pf.NEG();
+  }
 }
-void til::postfix_writer::do_unary_plus_node(cdk::unary_plus_node*, int) {
-  // EMPTY
+
+void til::postfix_writer::do_unary_plus_node(cdk::unary_plus_node * const node, int lvl) {
+  ASSERT_SAFE_EXPRESSIONS;
+  node->argument()->accept(this, lvl + 2); // determine the value
 }
 
 //---------------------------------------------------------------------------
@@ -815,6 +824,8 @@ void til::postfix_writer::do_program_node(
   _pf.ALIGN();
   _pf.GLOBAL("_main", _pf.FUNC());
   _pf.LABEL("_main");
+
+  std::cout << "PROGRAM NODE" << std::endl;
 
   // compute stack size to be reserved for local variables
   frame_size_calculator fsc(_compiler, _symtab);

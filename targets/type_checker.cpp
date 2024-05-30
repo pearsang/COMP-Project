@@ -336,12 +336,23 @@ void til::type_checker::do_or_node(cdk::or_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
-void til::type_checker::do_unary_minus_node(cdk::unary_minus_node*, int) {
-  // EMPTY
+void til::type_checker::do_unary_minus_node(cdk::unary_minus_node *const node, int lvl) {
+  ASSERT_UNSPEC;
+  node->argument()->accept(this, lvl + 2);
+  if (!(node->argument()->is_typed(cdk::TYPE_INT) ||
+        node->argument()->is_typed(cdk::TYPE_DOUBLE))) {
+    throw std::string("wrong type in argument of negation expression");
+  }
+  node->type(node->argument()->type());
 }
 
-void til::type_checker::do_unary_plus_node(cdk::unary_plus_node*, int) {
-  // EMPTY
+void til::type_checker::do_unary_plus_node(cdk::unary_plus_node *const node, int lvl) {
+  ASSERT_UNSPEC;
+  node->argument()->accept(this, lvl + 2);
+  const auto &type = node->argument()->type();
+  if (!(type->name() == cdk::TYPE_INT || type->name() == cdk::TYPE_DOUBLE))
+    throw std::string("wrong type in argument of identity expression");
+  node->type(type);
 }
 
 void til::type_checker::do_program_node(til::program_node*, int) {
@@ -397,6 +408,7 @@ void til::type_checker::do_evaluation_node(til::evaluation_node *const node,
 void til::type_checker::do_print_node(til::print_node *const node, int lvl) {
   node->arguments()->accept(this, lvl + 2);
   for (auto *node : node->arguments()->nodes()) {
+    std:: cout << node->label() << std::endl;
     const auto &type = (dynamic_cast<cdk::expression_node *>(node))->type();
     if (!(type->name() == cdk::TYPE_INT || type->name() == cdk::TYPE_DOUBLE ||
           type->name() == cdk::TYPE_STRING)) {
