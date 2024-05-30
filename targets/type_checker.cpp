@@ -408,7 +408,6 @@ void til::type_checker::do_evaluation_node(til::evaluation_node *const node,
 void til::type_checker::do_print_node(til::print_node *const node, int lvl) {
   node->arguments()->accept(this, lvl + 2);
   for (auto *node : node->arguments()->nodes()) {
-    std:: cout << node->label() << std::endl;
     const auto &type = (dynamic_cast<cdk::expression_node *>(node))->type();
     if (!(type->name() == cdk::TYPE_INT || type->name() == cdk::TYPE_DOUBLE ||
           type->name() == cdk::TYPE_STRING)) {

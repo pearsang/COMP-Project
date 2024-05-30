@@ -825,8 +825,6 @@ void til::postfix_writer::do_program_node(
   _pf.GLOBAL("_main", _pf.FUNC());
   _pf.LABEL("_main");
 
-  std::cout << "PROGRAM NODE" << std::endl;
-
   // compute stack size to be reserved for local variables
   frame_size_calculator fsc(_compiler, _symtab);
   node->accept(&fsc, lvl);
