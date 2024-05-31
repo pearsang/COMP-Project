@@ -70,7 +70,7 @@ private:
 protected:
   void processIDPBinaryExpression(cdk::binary_operation_node *const node,
                                   int lvl);
-  void processIDBinaryExpression(cdk::binary_operation_node *const node,
+  void handleIDBinaryExpression(cdk::binary_operation_node *const node,
                                  int lvl);
   void
   processGeneralLogicalBinaryExpression(cdk::binary_operation_node *const node,

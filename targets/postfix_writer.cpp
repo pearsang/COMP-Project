@@ -197,7 +197,7 @@ void til::postfix_writer::do_sub_node(cdk::sub_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
-void til::postfix_writer::processIDBinaryExpression(
+void til::postfix_writer::handleIDBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl + 2);
@@ -211,7 +211,7 @@ void til::postfix_writer::processIDBinaryExpression(
     _pf.I2D();
 }
 void til::postfix_writer::do_mul_node(cdk::mul_node *const node, int lvl) {
-  processIDBinaryExpression(node, lvl);
+  handleIDBinaryExpression(node, lvl);
 
   if (!node->is_typed(cdk::TYPE_DOUBLE))
     _pf.MUL();
@@ -219,7 +219,7 @@ void til::postfix_writer::do_mul_node(cdk::mul_node *const node, int lvl) {
     _pf.DMUL();
 }
 void til::postfix_writer::do_div_node(cdk::div_node *const node, int lvl) {
-  processIDBinaryExpression(node, lvl);
+  handleIDBinaryExpression(node, lvl);
 
   if (!node->is_typed(cdk::TYPE_DOUBLE))
     _pf.DIV();
