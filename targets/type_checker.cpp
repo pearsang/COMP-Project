@@ -11,10 +11,11 @@
       return;                                                                  \
   }
 
-bool til::type_checker::check_compatible_ptr_types(
+bool til::type_checker::ptr_types_compatibility_check(
     std::shared_ptr<cdk::basic_type> t1, std::shared_ptr<cdk::basic_type> t2) {
   auto t1_ptr = t1;
   auto t2_ptr = t2;
+  // while both are pointers, keep checking the referenced types
   while (t1_ptr->name() == cdk::TYPE_POINTER &&
          t2_ptr->name() == cdk::TYPE_POINTER) {
     t1_ptr = cdk::reference_type::cast(t1_ptr)->referenced();
@@ -23,12 +24,12 @@ bool til::type_checker::check_compatible_ptr_types(
   return t1_ptr->name() == t2_ptr->name() || t2_ptr->name() == cdk::TYPE_UNSPEC;
 }
 
-bool til::type_checker::check_compatible_fun_types(
+bool til::type_checker::func_types_compatibility_check(
     std::shared_ptr<cdk::functional_type> t1,
     std::shared_ptr<cdk::functional_type> t2) {
   // the return type must be compatible
   if ((t1->output_length() > 0 && t2->output_length() > 0) &&
-      !check_compatible_types(t1->output(0), t2->output(0)))
+      !types_compatibility_check(t1->output(0), t2->output(0)))
     return false;
 
   // the number of arguments must be the same
@@ -37,12 +38,12 @@ bool til::type_checker::check_compatible_fun_types(
 
   // the types of the arguments must be compatible
   for (size_t i = 0; i < t1->input_length(); i++)
-    if (!check_compatible_types(t1->input(i), t2->input(i)))
+    if (!types_compatibility_check(t1->input(i), t2->input(i)))
       return false;
   return true;
 }
 
-bool til::type_checker::check_compatible_types(
+bool til::type_checker::types_compatibility_check(
     std::shared_ptr<cdk::basic_type> t1, std::shared_ptr<cdk::basic_type> t2,
     bool is_return) {
   const auto t1_name = t1->name();
@@ -59,12 +60,12 @@ bool til::type_checker::check_compatible_types(
     break;
   case cdk::TYPE_POINTER:
     if (is_return == (t2_name == cdk::TYPE_POINTER) &&
-        !check_compatible_ptr_types(t1, t2))
+        !ptr_types_compatibility_check(t1, t2))
       return false;
     break;
   case cdk::TYPE_FUNCTIONAL:
     if (!((t2_name == cdk::TYPE_FUNCTIONAL &&
-           check_compatible_fun_types(cdk::functional_type::cast(t1),
+           func_types_compatibility_check(cdk::functional_type::cast(t1),
                                       cdk::functional_type::cast(t2))) ||
           (t2_name == cdk::TYPE_POINTER &&
            cdk::reference_type::cast(t2)->referenced() == nullptr)))
@@ -72,7 +73,7 @@ bool til::type_checker::check_compatible_types(
     break;
   case cdk::TYPE_UNSPEC: // useful for auto cases
     if (t2_name == cdk::TYPE_VOID)
-      // auto x = f(), where f calls return void, is not allowed
+      // var x = f(), where f calls return void, is not allowed
       return false;
     break;
   default:
@@ -82,44 +83,44 @@ bool til::type_checker::check_compatible_types(
   return true;
 }
 
-void til::type_checker::throw_incompatible_types(
+void til::type_checker::incompatible_types_throw(
     std::shared_ptr<cdk::basic_type> t1, std::shared_ptr<cdk::basic_type> t2,
     bool is_return) {
-  if (check_compatible_types(t1, t2))
+  if (types_compatibility_check(t1, t2))
     return;
 
   const std::string field_name =
-      is_return ? "return" : "initialization"; // hacky
+      is_return ? "return" : "initialization";
   switch (t1->name()) {
   case cdk::TYPE_INT:
   case cdk::TYPE_DOUBLE:
     throw std::string("wrong type in " + field_name +
                       " (expected double or int)");
   case cdk::TYPE_STRING:
-    throw std::string("wrong type in " + field_name + " (expected string)");
+    throw std::string("wrong type in " + field_name + " (string was expected)");
   case cdk::TYPE_POINTER:
-    throw std::string("wrong type in " + field_name + " (expected pointer)");
+    throw std::string("wrong type in " + field_name + " (pointer was expected)");
   case cdk::TYPE_FUNCTIONAL:
-    throw std::string("wrong type in " + field_name + " (expected function)");
+    throw std::string("wrong type in " + field_name + " (function was expected)");
   default:
     throw std::string("unknown type in " + field_name);
   }
 }
 
-void til::type_checker::change_type_on_match(cdk::typed_node *const lvalue,
+void til::type_checker::on_match_change_type(cdk::typed_node *const lvalue,
                                              cdk::typed_node *const rvalue) {
   const auto ltype = lvalue->type();
   const auto rtype = rvalue->type();
   if (ltype->name() == cdk::TYPE_UNSPEC && rtype->name() == cdk::TYPE_UNSPEC) {
-    // auto x = input;
+    // var x = input;
     lvalue->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
     rvalue->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
   } else if ((ltype->name() == cdk::TYPE_POINTER &&
               rtype->name() == cdk::TYPE_POINTER &&
-              check_compatible_ptr_types(ltype, rtype)) ||
+              ptr_types_compatibility_check(ltype, rtype)) ||
              (ltype->name() == cdk::TYPE_FUNCTIONAL &&
               rtype->name() == cdk::TYPE_FUNCTIONAL &&
-              check_compatible_fun_types(cdk::functional_type::cast(ltype),
+              func_types_compatibility_check(cdk::functional_type::cast(ltype),
                                          cdk::functional_type::cast(rtype))) ||
              ((ltype->name() == cdk::TYPE_INT ||
                ltype->name() == cdk::TYPE_DOUBLE) &&
@@ -128,12 +129,7 @@ void til::type_checker::change_type_on_match(cdk::typed_node *const lvalue,
   }
 }
 
-//---------------------------------------------------------------------------
-// NOTE: these methods were adapted from the provided type_checker.cpp, in OG
-// I don't like them aesthetically either, but they work
-
-// returns false if not correctly processed
-bool til::type_checker::processBinaryExpression(
+bool til::type_checker::handleBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
   node->left()->accept(this, lvl + 2);
   node->right()->accept(this, lvl + 2);
@@ -167,7 +163,7 @@ bool til::type_checker::processBinaryExpression(
   return true;
 }
 
-void til::type_checker::processIBinaryExpression(
+void til::type_checker::handleIBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
   ASSERT_UNSPEC;
   node->left()->accept(this, lvl + 2);
@@ -180,17 +176,17 @@ void til::type_checker::processIBinaryExpression(
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
-void til::type_checker::processIDBinaryExpression(
+void til::type_checker::handleIDBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
   ASSERT_UNSPEC;
-  if (!processBinaryExpression(node, lvl))
+  if (!handleBinaryExpression(node, lvl))
     throw std::string("wrong types in binary expression");
 }
 
-void til::type_checker::processAdditiveBinaryExpression(
+void til::type_checker::handleAdditiveBinaryExpression(
     cdk::binary_operation_node *const node, int lvl, bool isSub) {
   ASSERT_UNSPEC;
-  if (processBinaryExpression(node, lvl))
+  if (handleBinaryExpression(node, lvl))
     return;
 
   if (node->left()->is_typed(cdk::TYPE_POINTER) &&
@@ -203,7 +199,7 @@ void til::type_checker::processAdditiveBinaryExpression(
     if (isSub) {
       if ((node->left()->is_typed(cdk::TYPE_POINTER) &&
            node->right()->is_typed(cdk::TYPE_POINTER)) &&
-          (check_compatible_ptr_types(node->left()->type(),
+          (ptr_types_compatibility_check(node->left()->type(),
                                       node->right()->type()))) {
         node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
         return;
@@ -213,24 +209,24 @@ void til::type_checker::processAdditiveBinaryExpression(
   }
 }
 
-void til::type_checker::processComparisonBinaryExpression(
+void til::type_checker::handleComparisonBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
-  processIDBinaryExpression(node, lvl);
+  handleIDBinaryExpression(node, lvl);
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
-void til::type_checker::processLogicalBinaryExpression(
+void til::type_checker::handleLogicalBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
-  processIBinaryExpression(node, lvl);
+  handleIBinaryExpression(node, lvl);
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
-void til::type_checker::processEqualityBinaryExpression(
+void til::type_checker::handleEqualityBinaryExpression(
     cdk::binary_operation_node *const node, int lvl) {
   node->left()->accept(this, lvl + 2);
   node->right()->accept(this, lvl + 2);
-  if (!(processBinaryExpression(node, lvl) ||
-        check_compatible_ptr_types(node->left()->type(),
+  if (!(handleBinaryExpression(node, lvl) ||
+        ptr_types_compatibility_check(node->left()->type(),
                                    node->right()->type()))) {
     throw std::string("same type expected on both sides of equality operator");
   }
@@ -260,6 +256,13 @@ void til::type_checker::do_next_node(til::next_node *const node, int lvl) {
   // EMPTY
 }
 void til::type_checker::do_block_node(til::block_node *const node, int lvl) {
+  // EMPTY
+}
+void til::type_checker::do_program_node(til::program_node*, int) {
+  // EMPTY
+}
+void til::type_checker::do_function_def_node(
+    til::function_def_node *const node, int lvl) {
   // EMPTY
 }
 
@@ -294,48 +297,6 @@ void til::type_checker::do_not_node(cdk::not_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
-void til::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
-  processAdditiveBinaryExpression(node, lvl, false);
-}
-void til::type_checker::do_sub_node(cdk::sub_node *const node, int lvl) {
-  processAdditiveBinaryExpression(node, lvl, true);
-}
-void til::type_checker::do_mul_node(cdk::mul_node *const node, int lvl) {
-  processIDBinaryExpression(node, lvl);
-}
-void til::type_checker::do_div_node(cdk::div_node *const node, int lvl) {
-  processIDBinaryExpression(node, lvl);
-}
-void til::type_checker::do_mod_node(cdk::mod_node *const node, int lvl) {
-  processIBinaryExpression(node, lvl);
-}
-void til::type_checker::do_lt_node(cdk::lt_node *const node, int lvl) {
-  processComparisonBinaryExpression(node, lvl);
-}
-void til::type_checker::do_le_node(cdk::le_node *const node, int lvl) {
-  processComparisonBinaryExpression(node, lvl);
-}
-void til::type_checker::do_ge_node(cdk::ge_node *const node, int lvl) {
-  processComparisonBinaryExpression(node, lvl);
-}
-void til::type_checker::do_gt_node(cdk::gt_node *const node, int lvl) {
-  processComparisonBinaryExpression(node, lvl);
-}
-void til::type_checker::do_ne_node(cdk::ne_node *const node, int lvl) {
-  processEqualityBinaryExpression(node, lvl);
-}
-void til::type_checker::do_eq_node(cdk::eq_node *const node, int lvl) {
-  processEqualityBinaryExpression(node, lvl);
-}
-void til::type_checker::do_and_node(cdk::and_node *const node, int lvl) {
-  processLogicalBinaryExpression(node, lvl);
-}
-void til::type_checker::do_or_node(cdk::or_node *const node, int lvl) {
-  processLogicalBinaryExpression(node, lvl);
-}
-
-//---------------------------------------------------------------------------
-
 void til::type_checker::do_unary_minus_node(cdk::unary_minus_node *const node, int lvl) {
   ASSERT_UNSPEC;
   node->argument()->accept(this, lvl + 2);
@@ -355,10 +316,47 @@ void til::type_checker::do_unary_plus_node(cdk::unary_plus_node *const node, int
   node->type(type);
 }
 
-void til::type_checker::do_program_node(til::program_node*, int) {
-  // EMPTY
-}
+//---------------------------------------------------------------------------
 
+void til::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
+  handleAdditiveBinaryExpression(node, lvl, false);
+}
+void til::type_checker::do_sub_node(cdk::sub_node *const node, int lvl) {
+  handleAdditiveBinaryExpression(node, lvl, true);
+}
+void til::type_checker::do_mul_node(cdk::mul_node *const node, int lvl) {
+  handleIDBinaryExpression(node, lvl);
+}
+void til::type_checker::do_div_node(cdk::div_node *const node, int lvl) {
+  handleIDBinaryExpression(node, lvl);
+}
+void til::type_checker::do_mod_node(cdk::mod_node *const node, int lvl) {
+  handleIBinaryExpression(node, lvl);
+}
+void til::type_checker::do_lt_node(cdk::lt_node *const node, int lvl) {
+  handleComparisonBinaryExpression(node, lvl);
+}
+void til::type_checker::do_le_node(cdk::le_node *const node, int lvl) {
+  handleComparisonBinaryExpression(node, lvl);
+}
+void til::type_checker::do_ge_node(cdk::ge_node *const node, int lvl) {
+  handleComparisonBinaryExpression(node, lvl);
+}
+void til::type_checker::do_gt_node(cdk::gt_node *const node, int lvl) {
+  handleComparisonBinaryExpression(node, lvl);
+}
+void til::type_checker::do_ne_node(cdk::ne_node *const node, int lvl) {
+  handleEqualityBinaryExpression(node, lvl);
+}
+void til::type_checker::do_eq_node(cdk::eq_node *const node, int lvl) {
+  handleEqualityBinaryExpression(node, lvl);
+}
+void til::type_checker::do_and_node(cdk::and_node *const node, int lvl) {
+  handleLogicalBinaryExpression(node, lvl);
+}
+void til::type_checker::do_or_node(cdk::or_node *const node, int lvl) {
+  handleLogicalBinaryExpression(node, lvl);
+}
 
 //---------------------------------------------------------------------------
 
@@ -391,10 +389,10 @@ void til::type_checker::do_assignment_node(cdk::assignment_node *const node,
   node->lvalue()->accept(this, lvl + 2);
   node->rvalue()->accept(this, lvl + 2);
 
-  change_type_on_match(node->lvalue(), node->rvalue());
+  on_match_change_type(node->lvalue(), node->rvalue());
   const auto lval_type = node->lvalue()->type();
   const auto rval_type = node->rvalue()->type();
-  throw_incompatible_types(lval_type, rval_type);
+  incompatible_types_throw(lval_type, rval_type);
   node->type(lval_type);
 }
 
@@ -441,10 +439,10 @@ void til::type_checker::do_return_node(til::return_node *const node, int lvl) {
     const auto main = _symtab.find("_main");
     if (main) {
       if (!ret_val)
-        throw std::string("wrong type of return value in main (int expected)");
+        throw std::string("wrong type of return value in main (int was expected)");
       ret_val->accept(this, lvl + 2);
       if (!ret_val->is_typed(cdk::TYPE_INT))
-        throw std::string("wrong type of return value in main (int expected)");
+        throw std::string("wrong type of return value in main (int was expected)");
       return;
     }
     throw std::string("return statement found outside function");
@@ -461,7 +459,7 @@ void til::type_checker::do_return_node(til::return_node *const node, int lvl) {
     throw std::string("unknown return type in function");
 
   ret_val->accept(this, lvl + 2);
-  throw_incompatible_types(function_output, ret_val->type(), true);
+  incompatible_types_throw(function_output, ret_val->type(), true);
 }
 
 //---------------------------------------------------------------------------
@@ -481,8 +479,8 @@ void til::type_checker::do_declaration_node(til::declaration_node *const node,
   if (init) {
     init->accept(this, lvl + 2);
     if (node->type()) {
-      change_type_on_match(node, init);
-      throw_incompatible_types(node->type(), init->type());
+      on_match_change_type(node, init);
+      incompatible_types_throw(node->type(), init->type());
       if (node->type()->name() == cdk::TYPE_UNSPEC)
         node->type(init->type());
     } else {
@@ -598,12 +596,4 @@ void til::type_checker::do_function_call_node(
       throw std::string("wrong type in argument of function call expression");
     }
   }
-}
-
-//---------------------------------------------------------------------------
-
-void til::type_checker::do_function_def_node(
-    til::function_def_node *const node, int lvl) {
-  // Purposefully empty, as the type of the function's definition is set in
-  // the node's constructor
 }
